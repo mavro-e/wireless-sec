@@ -186,14 +186,20 @@ def choose_AP():
     monitors, interfaces = iwconfig()
     interface = get_iface(interfaces)
     scanned_aps = []
-    proc = Popen(['iwlist', 'wlan0', 'scan'], stdout=PIPE)
+    proc = Popen(['iwlist', interface, 'scan'], stdout=PIPE)
+    header = 'Number    MAC address           Name'
+    print header
+    rows, columns = subprocess.check_output(['stty', 'size']).split()
+    print '-' * int(columns)
     for line in proc.communicate()[0].split('\n'):
 	    if 'Address' in line:
-		    print 'Access Point ' + line[15:]
+		    print "  " + line[15:17],
+		    print "     " + line[29:],
 		    scanned_aps.append(line[29:])
 	    if 'ESSID:' in line: # first line in iwlist scan for a new AP
-		    print line[20:],
+		    print "    " + line[26:],
 		    print '\n'
+		    
     index = input('Which AP would you like to attack (' + str(1) + '-' + str(len(scanned_aps)) + ', 0 to quit)? ')
     if index < 1:
 	sys.exit("Quitting")
